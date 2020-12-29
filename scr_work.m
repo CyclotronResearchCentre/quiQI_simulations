@@ -17,7 +17,7 @@ age_range = [20 70];
 age_weight = .2;
 gr_ratio = [1 3]/4; % #sub group ratio for 2s t-test
 
-reml_sc = 1; % positivity constraints on covariance parameters
+reml_sc = 0; % positivity constraints on covariance parameters
 
 % random ages and Qindex in interval
 age_sub = age_range(1) + rand(Nsub,1)*diff(age_range);
@@ -210,7 +210,7 @@ for iQ = 1:num_Q
     for iQ_h = 1:numel(Qall{iQ})
         fprintf('%.3f ',full(h{iQ}(iQ_h)))
     end
-    fprintf('\n\tBeta''s (gr1 + gr2) : %.3f + %.3f', beta_s{iQ})
+    fprintf('\n\tBeta''s (gr1 + gr2) : %.3f , %.3f', beta_s{iQ})
     fprintf('\n\tMean and std of W-residual : %.3f +/- %.3f', ...
         mean(res_s{iQ}), std(res_s{iQ}))
     fprintf('\n')
