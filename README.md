@@ -1,2 +1,2 @@
-# quiQI_simultations
-Some sims for the quiQI project
+# quiQI_simulations
+Some simulations for the quiQI project
