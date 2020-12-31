@@ -13,6 +13,7 @@ There are a few questions that need to be answered:
 1. when calculating the WLS solution of the GLM, the residuals are not mean centred anymore. Is that an issue?
 2. which components should be used for the modelling of the variance-covariance matrix? And do the rescaling and/or setting the minimal value of each component to zero matter?
 3. what about the positivity constraints on covariance parameters in ReML?
+4. what is the model linking the quality index (QI) and the individual signal?
 
 ### Answers?
 
@@ -24,4 +25,10 @@ In SPM after the estimation of the GLM, with the whitening of data and design ma
 The SPM code in `spm_est_non_sphericity`  relies on  `spm_reml`, i.e. NO positivity constraints.
 #### For #2. 
 There is some form of regularisation in `spm_reml`, so not sure about the effect of scaling some components or setting the smallest value to zero. This will really depend on how we think the QIndex should account for the variance in the residuals...
+
+#### For #4.
+
+Here in the simulation, the assumption is that the a random value, drawn from a 0-centred Normal distribution, is added to the true signal and the variance of this N-distribution is proportionate to the QI. Thus this should "just" mean noisier data for subjects with larger QI but no biasing effect.
+
+:arrow_forward: Could there be another way of representing this? Is the normal distribution a good assumption?
 
