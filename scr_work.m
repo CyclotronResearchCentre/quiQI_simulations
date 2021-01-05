@@ -1,5 +1,5 @@
 %% Working on some simulation for the QuiQI project 
-% Main prokect lead by A. Lutti
+% Main project lead by A. Lutti
 %__________________________________________________________________________
 % Copyright (C) 2020 Cyclotron Research Centre
 
