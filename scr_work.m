@@ -6,7 +6,7 @@
 % Written by C. Phillips, 2020.
 % GIGA Institute, University of Liege, Belgium
 
-% Some parameters
+%% Some parameters
 % ===============
 Nsub = 20; % Number of subjects
 sig_intens = [100 120]; % signal intensity for 1 or 2 groups
@@ -23,16 +23,27 @@ reml_sc = 0; % positivity constraints on covariance parameters
 age_sub = age_range(1) + rand(Nsub,1)*diff(age_range);
 Qind_sub = Qind_range(1) + rand(Nsub,1)*diff(Qind_range);
 
-% 1-sample t-test model
+%% 1-sample t-test model
 % =====================
 % design matrix
 X = [ones(Nsub,1) age_sub-mean(age_sub)] ; 
 
 % create noisy signal
-Y = sig_intens(1) ... % baseline noise free signal
-    + age_weight * (age_sub-min(age_sub)) ... % age effect
+true_Y = sig_intens(1) + ...  % baseline noise free signal
+    age_weight * (age_sub-min(age_sub)); % age effect
+Y = true_Y ... 
     + randn(Nsub,1)*noise_std(1) ... % adding background noise
     + Qind_weight*(Qind_sub.*randn(Nsub,1)); % adding QInd noise
+
+% Looking at the true signal & residuals
+true_mean_Y = mean(true_Y);
+figure, plot([Y , true_Y])
+true_res = Y - true_Y;
+mean(true_res), std(true_res), norm(true_res)
+fprintf('\nTrue signal:')
+fprintf('\n\tMean signal + age fx : %.3f + %.3f x age', true_mean_Y, age_weight)
+fprintf('\n\tMean and std of res  : %.3f +/- %.3f', mean(true_res), std(true_res))
+fprintf('\n')
 
 % Simple OLS solution
 % -------------------
@@ -50,6 +61,7 @@ fprintf('\n')
 YY = Y*Y'; % assuming a single voxel
 Qind_sub_m = Qind_sub-min(Qind_sub); % Qind min value to 0
 Qind_sub_mm = (Qind_sub-min(Qind_sub))/max(Qind_sub); % Q ind in [0 1]
+Qind_sub_c = Qind_sub-mean(Qind_sub); % mean-centered Qind
 
 % Q1, Using just identity matrix, i.e. OLS
 Q_lab{1} = 'Using just identity matrix, i.e. OLS';
@@ -75,8 +87,16 @@ Q5 = {eye(Nsub), diag(Qind_sub_mm), diag(Qind_sub_mm.^2), diag(Qind_sub_mm.^3)};
 Q_lab{6} = 'Using id matrix + 1st, 2nd and 3rd order for original Qind';
 Q6 = {eye(Nsub), diag(Qind_sub), diag(Qind_sub.^2), diag(Qind_sub.^3)}; % Using Qind_sub
 
+% Q7, Using identity matrix + m-centered Qind_sub 
+Q_lab{7} = 'Using identity matrix + mean centered Qind_sub';
+Q7 = {eye(Nsub) ,diag(Qind_sub_c)}; 
+
+% Q8, Using id matrix + 1st, 2nd and 3rd order for m-centered Qind_sub
+Q_lab{8} = 'Using id matrix + 1st, 2nd and 3rd order for m-centered Qind_sub';
+Q8 = {eye(Nsub), diag(Qind_sub_c), diag(Qind_sub_c.^2), diag(Qind_sub_c.^3)}; 
+
 % Collecting all Q's
-Qall = {Q1, Q2, Q3, Q4, Q5, Q6};
+Qall = {Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8};
 num_Q = numel(Qall);
 beta_s = cell(1,num_Q);
 res_s = cell(1,num_Q);
@@ -96,7 +116,8 @@ for iQ = 1:num_Q
     Ys = W*Y;
     Xs = W*X;
     beta_s{iQ} = Xs\Ys;
-    res_s{iQ} = Ys - Xs*beta_s{iQ};
+%     res_s{iQ} = Ys - Xs*beta_s{iQ}; % Res of weighted/whitened model
+    res_s{iQ} = Y - X*beta_s{iQ}; % res of original model
 end
 
 % Display results
@@ -118,7 +139,8 @@ for iQ = 1:num_Q
 end
 fprintf('\n')
 
-% 2-sample t-test model
+
+%% 2-sample t-test model
 % =====================
 % design matrix
 Nsub_gr12(1) = round(Nsub*gr_ratio(1));
