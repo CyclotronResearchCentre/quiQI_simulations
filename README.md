@@ -32,3 +32,12 @@ Here in the simulation, the assumption is that the a random value, drawn from a 
 
 :arrow_forward: Could there be another way of representing this? Is the normal distribution a good assumption?
 
+---
+
+## Further comments
+
+Following some quick checks on the true signal/residuals:
+
+1. When creating the noisy data, from some true (=noise free) signal, we add some random numbers drawn from a mean-centered normal distribution. This constitute the "true residuals" but this does NOT imply that the mean of the "true residuals" is exactly zero. Of course, if we generate a very large dataset, this mean will tend to zero... So we may be confusing the estimate of the residual mean with its true mean.
+2. When we calculate the WLS of our problem, i.e. an OLS of the whitened data and design matrix,  we get some estimates of beta. These `$\hat{\beta}$` are for our original problem, so why bother with the whitened one? And for the residuals, the true one is not centered around zero anyway, so here we are just hoping to get a better estimate of these residuals.
+3. Here I/we should probably have a look at the significance of the estimated parameters and check that it improves when we better handle/model the residuals variance.
